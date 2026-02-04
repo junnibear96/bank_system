@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
 import HistoryView from '../views/HistoryView.vue'
+import StockView from '../views/StockView.vue'
 import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
@@ -27,6 +28,11 @@ const router = createRouter({
             path: '/history',
             name: 'history',
             component: HistoryView
+        },
+        {
+            path: '/stock',
+            name: 'stock',
+            component: StockView
         }
     ]
 })
