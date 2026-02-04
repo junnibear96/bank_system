@@ -1,14 +1,15 @@
 package com.finance.app.controller;
 
 import com.finance.app.domain.Account;
-import com.finance.app.dto.TransactionDto; // Added
+import com.finance.app.dto.AccountDto; // Added
+import com.finance.app.dto.TransactionDto;
 import com.finance.app.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
-import java.util.List; // Added
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,34 +19,36 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    // Get My Account Info
+    // Get My Account (Use DTO)
     @GetMapping("/my")
-    public Account getMyAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        return accountService.getMyAccount(userDetails.getUsername());
+    public AccountDto.Response getMyAccount(@AuthenticationPrincipal UserDetails userDetails) {
+        Account account = accountService.getMyAccount(userDetails.getUsername());
+        if (account == null)
+            return null;
+        return new AccountDto.Response(account.getAccountNumber(), account.getBalance());
     }
 
     // Create Account
     @PostMapping("/create")
-    public Account createAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        return accountService.createAccount(userDetails.getUsername());
+    public AccountDto.Response createAccount(@AuthenticationPrincipal UserDetails userDetails) {
+        Account account = accountService.createAccount(userDetails.getUsername());
+        return new AccountDto.Response(account.getAccountNumber(), account.getBalance());
     }
 
-    // Deposit Money
+    // Deposit (Use DTO)
     @PostMapping("/deposit")
-    public Account deposit(@AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody Map<String, BigDecimal> request) {
-        BigDecimal amount = request.get("amount");
-        return accountService.deposit(userDetails.getUsername(), amount);
+    public AccountDto.Response deposit(@AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody AccountDto.DepositRequest request) {
+        Account account = accountService.deposit(userDetails.getUsername(), request.getAmount());
+        return new AccountDto.Response(account.getAccountNumber(), account.getBalance());
     }
 
-    // Transfer Money
+    // Transfer (Use DTO)
     @PostMapping("/transfer")
-    public String transfer(@AuthenticationPrincipal UserDetails userDetails, @RequestBody Map<String, Object> request) {
-        String toAccount = (String) request.get("toAccount");
-        BigDecimal amount = new BigDecimal(request.get("amount").toString());
-
-        accountService.transfer(userDetails.getUsername(), toAccount, amount);
-        return "Transfer Successful";
+    public String transfer(@AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody AccountDto.TransferRequest request) {
+        accountService.transfer(userDetails.getUsername(), request.getToAccount(), request.getAmount());
+        return "송금이 완료되었습니다.";
     }
 
     // Get Transaction History

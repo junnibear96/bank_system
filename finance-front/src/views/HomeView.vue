@@ -93,7 +93,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import axios from 'axios';
+import api from '@/api'; // Centralized Axios import
 
 const authStore = useAuthStore();
 const account = ref(null);
@@ -111,7 +111,7 @@ const transferAmount = ref('');
 const loadAccount = async () => {
   if (!authStore.isAuthenticated) return;
   try {
-    const res = await axios.get('http://localhost:8080/api/account/my');
+    const res = await api.get('/account/my');
     account.value = res.data;
   } catch (e) {
     console.log("계좌 없음");
@@ -121,7 +121,7 @@ const loadAccount = async () => {
 // 계좌 생성
 const createAccount = async () => {
   try {
-    await axios.post('http://localhost:8080/api/account/create');
+    await api.post('/account/create');
     loadAccount();
   } catch (e) {
     alert("계좌 생성 실패");
@@ -142,14 +142,15 @@ const handleDeposit = async () => {
     return;
   }
   try {
-    await axios.post('http://localhost:8080/api/account/deposit', {
-      amount: depositAmount.value
+    // DTO format handled by centralized exception handler on error
+    await api.post('/account/deposit', {
+      amount: Number(depositAmount.value)
     });
     alert(`₩${Number(depositAmount.value).toLocaleString()} 입금 완료!`);
     closeModal();
     loadAccount(); 
   } catch (error) {
-    alert("입금 실패: " + (error.response?.data?.message || "오류"));
+    alert("입금 실패: " + (error.message || "오류"));
   }
 };
 
@@ -183,16 +184,16 @@ const handleTransfer = async () => {
   }
 
   try {
-    await axios.post('http://localhost:8080/api/account/transfer', {
+    await api.post('/account/transfer', {
       toAccount: transferTarget.value,
-      amount: transferAmount.value
+      amount: Number(transferAmount.value)
     });
     alert("송금 성공! 💸");
     closeTransferModal();
     loadAccount(); // 잔액 갱신
   } catch (error) {
-    const msg = error.response?.data?.message || "송금 실패";
-    alert("에러: " + msg);
+    // Centralized error handling returns error.message directly
+    alert("에러: " + (error.message || "송금 실패"));
   }
 };
 
