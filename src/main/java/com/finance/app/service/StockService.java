@@ -114,7 +114,78 @@ public class StockService {
         }
     }
 
-    // --- Stock Account Management ---
+    // 4. Get Stock History (Manual)
+    public List<StockDto.HistoryResponse> getStockHistory(String ticker) {
+        if (ticker == null || ticker.trim().isEmpty())
+            return java.util.Collections.emptyList();
+
+        List<StockDto.HistoryResponse> history = new java.util.ArrayList<>();
+        try {
+            // Yahoo Chart API (1 Month, Daily)
+            // https://query1.finance.yahoo.com/v8/finance/chart/AAPL?interval=1d&range=1mo
+            String urlStr = "https://query1.finance.yahoo.com/v8/finance/chart/" + ticker.trim()
+                    + "?interval=1d&range=1mo";
+            java.net.URL url = new java.net.URL(urlStr);
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+            if (conn.getResponseCode() != 200) {
+                return history; // Return empty on error
+            }
+
+            java.io.BufferedReader in = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null)
+                content.append(inputLine);
+            in.close();
+
+            String json = content.toString();
+
+            // Very Basic Parsing (Regex) to extract timestamps and closes
+            // Note: Use a proper JSON library (Jackson/Gson) in production!
+
+            // 1. Extract Timestamps: "timestamp":[167...,167...]
+            java.util.regex.Pattern pTime = java.util.regex.Pattern.compile("\"timestamp\":\\[(.*?)\\]");
+            java.util.regex.Matcher mTime = pTime.matcher(json);
+
+            // 2. Extract Closes: "close":[150.1,152.3...] (inside events or indicators) -
+            // tricky with regex
+            // Simplification: Look for "adjclose":[{"adjclose":[...]}] or "close":[...]
+            // using a wider search
+            // Let's rely on "close":[....] pattern which usually appears in "indicators"
+            java.util.regex.Pattern pClose = java.util.regex.Pattern.compile("\"close\":\\[(.*?)\\]");
+            java.util.regex.Matcher mClose = pClose.matcher(json);
+
+            if (mTime.find() && mClose.find()) {
+                String[] times = mTime.group(1).split(",");
+                String[] prices = mClose.group(1).split(",");
+
+                java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                for (int i = 0; i < times.length && i < prices.length; i++) {
+                    try {
+                        // Skip nulls
+                        if (prices[i].equals("null"))
+                            continue;
+
+                        long ts = Long.parseLong(times[i]);
+                        BigDecimal price = new BigDecimal(prices[i]);
+
+                        LocalDateTime date = LocalDateTime.ofEpochSecond(ts, 0, java.time.ZoneOffset.UTC);
+                        history.add(new StockDto.HistoryResponse(date.format(dtf), price));
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return history;
+    }
 
     // 1. Transfer Bank -> Stock Account
     @Transactional

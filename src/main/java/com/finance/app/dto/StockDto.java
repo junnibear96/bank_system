@@ -60,4 +60,12 @@ public class StockDto {
         private String currency;
         private java.time.LocalDateTime date;
     }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class HistoryResponse {
+        private String date; // YYYY-MM-DD
+        private BigDecimal price;
+    }
 }

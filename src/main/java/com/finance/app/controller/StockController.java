@@ -66,6 +66,11 @@ public class StockController {
         return new StockDto.PriceResponse(ticker, stockService.getStockPrice(ticker));
     }
 
+    @GetMapping("/history/{ticker}")
+    public List<StockDto.HistoryResponse> getHistory(@PathVariable String ticker) {
+        return stockService.getStockHistory(ticker);
+    }
+
     @PostMapping("/buy")
     public String buy(@AuthenticationPrincipal UserDetails user, @RequestBody StockDto.TradeRequest req) {
         stockService.buyStock(user.getUsername(), req.getTicker(), req.getQuantity());

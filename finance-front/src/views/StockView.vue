@@ -60,6 +60,12 @@
             <span class="price">${{ Number(currentStock.price).toLocaleString() }}</span>
           </div>
 
+          <!-- Stock Chart -->
+          <div class="chart-container" style="height: 250px; margin-bottom: 20px; position: relative;">
+            <p v-if="loadingChart" style="text-align: center; color: #64748b; line-height: 250px;">차트 로딩 중...</p>
+            <Line v-else-if="chartData" :data="chartData" :options="chartOptions" />
+          </div>
+
           <div class="order-form">
             <input v-model.number="quantity" type="number" min="1" placeholder="수량" />
             <div class="btn-group">
@@ -73,19 +79,27 @@
 
       <!-- Portfolio Table -->
       <div class="card portfolio-card">
-        <h3>내 보유 주식</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="margin: 0;">내 보유 주식</h3>
+          <span style="font-size: 0.85rem; color: #64748b;">(컬럼을 클릭하여 정렬 가능)</span>
+        </div>
         <table v-if="portfolio.length > 0" class="portfolio-table">
           <thead>
             <tr>
-              <th>종목</th>
-              <th>수량</th>
-              <th>평단가</th>
-              <th>현재가</th>
-              <th>수익률</th>
+              <th @click="sortBy('ticker')">종목 <span v-if="sortKey === 'ticker'">{{ sortOrder === 'asc' ? '▲' : '▼'
+                  }}</span></th>
+              <th @click="sortBy('quantity')">수량 <span v-if="sortKey === 'quantity'">{{ sortOrder === 'asc' ? '▲' : '▼'
+                  }}</span></th>
+              <th @click="sortBy('avgPrice')">평단가 <span v-if="sortKey === 'avgPrice'">{{ sortOrder === 'asc' ? '▲' : '▼'
+                  }}</span></th>
+              <th @click="sortBy('currentPrice')">현재가 <span v-if="sortKey === 'currentPrice'">{{ sortOrder === 'asc' ?
+                '▲' : '▼' }}</span></th>
+              <th @click="sortBy('profit')">수익률 <span v-if="sortKey === 'profit'">{{ sortOrder === 'asc' ? '▲' : '▼'
+                  }}</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in portfolio" :key="item.ticker">
+            <tr v-for="item in sortedPortfolio" :key="item.ticker">
               <td>{{ item.ticker }}</td>
               <td>{{ item.quantity }}주</td>
               <td>${{ item.avgPrice.toFixed(2) }}</td>
@@ -263,6 +277,10 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import api from '@/api';
+import { Line } from 'vue-chartjs';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 // 상태 변수
 const hasAccount = ref(false);
@@ -294,6 +312,38 @@ const exchangeDirection = ref('KRW_TO_USD'); // 'KRW_TO_USD' or 'USD_TO_KRW'
 const exchangeSource = ref('BANK'); // 'BANK' or 'STOCK'
 const currentExchangeRate = ref(1300); // Default fallback
 let exchangeRateInterval = null;
+
+// Chart State
+const chartData = ref(null);
+const loadingChart = ref(false);
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    mode: 'index',
+    intersect: false,
+  },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      enabled: true,
+      mode: 'index',
+      intersect: false,
+      callbacks: {
+        label: function (context) {
+          return ' $' + Number(context.parsed.y).toLocaleString();
+        }
+      }
+    }
+  },
+  scales: {
+    x: { display: false }, // Hide X Axis Grid
+    y: { display: false }  // Hide Y Axis Grid
+  },
+  elements: {
+    point: { radius: 0, hitRadius: 10, hoverRadius: 5 } // Improve hover interaction
+  }
+};
 
 // Watch Modal to start/stop polling
 watch(showExchangeModal, (newVal) => {
@@ -355,6 +405,8 @@ const searchStock = async () => {
   if (!tickerInput.value || !tickerInput.value.trim()) return;
   loading.value = true;
   currentStock.value = null;
+  chartData.value = null; // Reset Chart
+  loadingChart.value = true;
 
   try {
     const ticker = tickerInput.value.trim().toUpperCase();
@@ -363,8 +415,42 @@ const searchStock = async () => {
     // 1. Get Current Price
     const res = await api.get(`/stocks/price/${fullTicker}`);
     currentStock.value = res.data;
+
+    // 2. Get History (Chart Data)
+    try {
+      const historyRes = await api.get(`/stocks/history/${fullTicker}`);
+      if (historyRes.data && historyRes.data.length > 0) {
+        const labels = historyRes.data.map(h => h.date); // Dates
+        const prices = historyRes.data.map(h => h.price); // Prices
+
+        chartData.value = {
+          labels: labels,
+          datasets: [{
+            label: 'Price',
+            data: prices,
+            borderColor: '#3b82f6', // Blue-500
+            backgroundColor: (ctx) => {
+              const canvas = ctx.chart.ctx;
+              const gradient = canvas.createLinearGradient(0, 0, 0, 250);
+              gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+              gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+              return gradient;
+            },
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2
+          }]
+        };
+      }
+    } catch (err) {
+      console.error("차트 데이터 로드 실패", err);
+    } finally {
+      loadingChart.value = false;
+    }
+
   } catch (e) {
     alert("주식 정보를 찾을 수 없습니다.");
+    loadingChart.value = false;
   } finally {
     loading.value = false;
   }
@@ -470,6 +556,37 @@ const getProfitColor = (item) => {
   const profit = calculateProfit(item);
   return profit > 0 ? 'text-red' : (profit < 0 ? 'text-blue' : '');
 };
+
+// Start Sorting Logic
+const sortKey = ref('');
+const sortOrder = ref('asc');
+
+const sortBy = (key) => {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortKey.value = key;
+    sortOrder.value = 'asc';
+  }
+};
+
+const sortedPortfolio = computed(() => {
+  return [...portfolio.value].sort((a, b) => {
+    let modifier = sortOrder.value === 'asc' ? 1 : -1;
+    let aVal = a[sortKey.value];
+    let bVal = b[sortKey.value];
+
+    if (sortKey.value === 'profit') {
+      aVal = Number(calculateProfit(a));
+      bVal = Number(calculateProfit(b));
+    }
+
+    if (aVal < bVal) return -1 * modifier;
+    if (aVal > bVal) return 1 * modifier;
+    return 0;
+  });
+});
+// End Sorting Logic
 
 // Copy Account Number
 const copyAccountNumber = async () => {
