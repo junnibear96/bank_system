@@ -2,31 +2,28 @@ package com.finance.app.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockAccount {
+public class StockTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(unique = true)
-    private String accountNumber; // Example: "012-34567891"
+    private String type; // DEPOSIT, EXCHANGE
 
-    @Builder.Default
-    private java.math.BigDecimal balanceKRW = java.math.BigDecimal.ZERO;
+    private BigDecimal amount;
 
-    @Builder.Default
-    private java.math.BigDecimal balanceUSD = java.math.BigDecimal.ZERO;
+    private String currency; // KRW, USD
 
     private LocalDateTime createdAt;
 }

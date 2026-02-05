@@ -9,6 +9,15 @@ public class StockDto {
     @AllArgsConstructor
     public static class AccountResponse {
         private String accountNumber;
+        private BigDecimal balanceKRW;
+        private BigDecimal balanceUSD;
+        private BigDecimal bankBalance; // Added Bank Balance
+    }
+
+    @Getter
+    @Setter
+    public static class TransferRequest {
+        private BigDecimal amount;
     }
 
     @Getter
@@ -32,5 +41,15 @@ public class StockDto {
     public static class PriceResponse {
         private String ticker;
         private BigDecimal price;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class TransactionResponse {
+        private Long id;
+        private String type;
+        private BigDecimal amount;
+        private String currency;
+        private java.time.LocalDateTime date;
     }
 }
