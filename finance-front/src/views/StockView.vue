@@ -32,7 +32,7 @@
         </div>
         <div class="action-buttons">
           <button class="btn-secondary" @click="showTransferModal = true">🏦 은행에서 가져오기</button>
-          <button class="btn-secondary" @click="showExchangeModal = true">💱 환전하기 (KRW → USD)</button>
+          <button class="btn-secondary" @click="showExchangeModal = true">💱 환전하기</button>
           <button class="btn-secondary" @click="showHistoryModal = true"> 거래 내역</button>
         </div>
       </div>
@@ -191,19 +191,77 @@
 
     <div v-if="showExchangeModal" class="modal-overlay" @click.self="showExchangeModal = false">
       <div class="modal-content">
-        <h3>환전 (KRW → USD)</h3>
-        <p>현재 환율을 적용하여 달러로 바꿉니다.</p>
-        <input v-model="exchangeAmount" type="number" placeholder="환전할 원화 금액" class="modal-input" />
-        <p class="hint">예상 환율: 약 1,300원/$</p>
+        <h3>💱 환전 ({{ exchangeDirection === 'KRW_TO_USD' ? 'KRW → USD' : 'USD → KRW' }})</h3>
+
+        <!-- Direction Toggle -->
+        <!-- Direction Toggle -->
+        <div class="toggle-group">
+          <button :class="{ active: exchangeDirection === 'KRW_TO_USD' }" @click="exchangeDirection = 'KRW_TO_USD'">원화 →
+            달러</button>
+          <button :class="{ active: exchangeDirection === 'USD_TO_KRW' }" @click="exchangeDirection = 'USD_TO_KRW'">달러 →
+            원화</button>
+        </div>
+
+        <p v-if="exchangeDirection === 'KRW_TO_USD'" class="info-text">현재 환율을 적용하여 달러로 바꿉니다.</p>
+        <p v-else class="info-text">보유한 달러를 원화로 바꿉니다.</p>
+
+        <!-- Source Selection (Only for KRW -> USD) -->
+        <!-- Source Selection (Only for KRW -> USD) -->
+        <div v-if="exchangeDirection === 'KRW_TO_USD'" class="source-select">
+          <p class="section-label">출금 계좌 선택</p>
+
+          <label class="radio-label" :class="{ selected: exchangeSource === 'BANK' }">
+            <div class="radio-content">
+              <input type="radio" v-model="exchangeSource" value="BANK">
+              <span class="account-name">은행 계좌</span>
+            </div>
+            <span class="account-bal">₩ {{ Number(balanceBank).toLocaleString() }}</span>
+          </label>
+
+          <label class="radio-label" :class="{ selected: exchangeSource === 'STOCK' }">
+            <div class="radio-content">
+              <input type="radio" v-model="exchangeSource" value="STOCK">
+              <span class="account-name">증권 계좌</span>
+            </div>
+            <span class="account-bal">₩ {{ Number(balanceKRW).toLocaleString() }}</span>
+          </label>
+        </div>
+
+        <div v-else class="source-select">
+          <p class="section-label">출금 (보유 달러)</p>
+          <div class="radio-label selected" style="cursor: default;">
+            <div class="radio-content">
+              <span class="account-name">증권 계좌</span>
+            </div>
+            <span class="account-bal" style="color: #2563eb; font-weight: bold;">$ {{
+              Number(balanceUSD).toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <input v-model="exchangeAmount" type="number"
+          :placeholder="exchangeDirection === 'KRW_TO_USD' ? '환전할 원화 금액' : '환전할 달러 금액'" class="modal-input" />
+
+        <!-- Rate & Estimate -->
+        <!-- Rate & Estimate -->
+        <div class="exchange-info">
+          <p><strong>현재 환율:</strong> 약 {{ Number(currentExchangeRate).toLocaleString() }}원/$ <span class="sub-text">(실시간
+              10초마다 업데이트)</span></p>
+          <p v-if="exchangeAmount">
+            <strong>예상 결과:</strong>
+            <span class="result-highlight">
+              {{ exchangeDirection === 'KRW_TO_USD' ? '$' : '₩' }} {{ calculateExchangeEstimate(exchangeAmount) }}
+            </span>
+          </p>
+        </div>
+
         <button class="btn-confirm" @click="handleExchange">환전하기</button>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import api from '@/api';
 
 // 상태 변수
@@ -230,6 +288,33 @@ const showHistoryModal = ref(false);
 const historyTab = ref('KRW'); // 'KRW' or 'USD'
 const transferAmount = ref('');
 const exchangeAmount = ref('');
+
+// Exchange State
+const exchangeDirection = ref('KRW_TO_USD'); // 'KRW_TO_USD' or 'USD_TO_KRW'
+const exchangeSource = ref('BANK'); // 'BANK' or 'STOCK'
+const currentExchangeRate = ref(1300); // Default fallback
+let exchangeRateInterval = null;
+
+// Watch Modal to start/stop polling
+watch(showExchangeModal, (newVal) => {
+  if (newVal) {
+    fetchExchangeRate();
+    exchangeRateInterval = setInterval(fetchExchangeRate, 10000); // Poll every 10s
+  } else {
+    if (exchangeRateInterval) clearInterval(exchangeRateInterval);
+  }
+});
+
+const fetchExchangeRate = async () => {
+  try {
+    const res = await api.get('/stocks/price/KRW=X');
+    if (res.data && res.data.price) {
+      currentExchangeRate.value = res.data.price;
+    }
+  } catch (e) {
+    console.error("환율 조회 실패", e);
+  }
+};
 
 // 1. Check Account
 const checkStockAccount = async () => {
@@ -314,15 +399,29 @@ const handleTransfer = async () => {
   } catch (e) { alert("이체 실패: " + (e.response?.data || e.message)); }
 };
 
-// 6. Exchange (KRW -> USD)
+// 6. Exchange
 const handleExchange = async () => {
   try {
-    await api.post('/stocks/exchange', { amount: exchangeAmount.value });
+    await api.post('/stocks/exchange', {
+      amount: exchangeAmount.value,
+      sourceType: exchangeSource.value,
+      direction: exchangeDirection.value
+    });
     alert("환전 완료!");
     showExchangeModal.value = false;
     exchangeAmount.value = '';
     checkStockAccount(); // Refresh
   } catch (e) { alert("환전 실패: " + (e.response?.data || e.message)); }
+};
+
+const calculateExchangeEstimate = (amount) => {
+  const rate = currentExchangeRate.value;
+  if (exchangeDirection.value === 'KRW_TO_USD') {
+    const est = amount / rate;
+    return est < 0.01 ? est.toPrecision(3) : est.toFixed(2);
+  } else {
+    return Math.floor(amount * rate).toLocaleString();
+  }
 };
 
 // Load Portfolio
@@ -728,6 +827,8 @@ onMounted(() => {
   border-radius: 8px;
   margin-bottom: 20px;
   font-size: 1.1rem;
+  box-sizing: border-box;
+  /* Fix width overflow */
 }
 
 .hint {
@@ -963,5 +1064,128 @@ onMounted(() => {
 .btn-action.blue {
   background: #3b82f6;
   color: white;
+}
+</style>
+
+<style scoped>
+/* Exchange Modal Styling */
+.info-text {
+  color: #64748b;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.section-label {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.toggle-group {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.toggle-group button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.toggle-group button.active {
+  background: white;
+  color: #2563eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.source-select {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.radio-label:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.radio-label input {
+  margin-right: 12px;
+  transform: scale(1.2);
+  accent-color: #2563eb;
+}
+
+.radio-label.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.radio-content {
+  display: flex;
+  align-items: center;
+}
+
+.account-name {
+  font-weight: 500;
+  color: #1e293b;
+  margin-right: 8px;
+}
+
+.account-bal {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.exchange-info {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.exchange-info p {
+  margin: 5px 0;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.exchange-info strong {
+  color: #0f172a;
+}
+
+.sub-text {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.result-highlight {
+  color: #2563eb;
+  font-size: 1.1rem;
+  margin-left: 5px;
+  font-weight: bold;
 }
 </style>

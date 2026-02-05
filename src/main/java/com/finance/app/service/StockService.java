@@ -151,9 +151,9 @@ public class StockService {
                 .build());
     }
 
-    // 2. Exchange KRW -> USD
+    // 2. Exchange Currency (KRW <-> USD)
     @Transactional
-    public void exchangeCurrency(String username, BigDecimal amountKRW) {
+    public void exchangeCurrency(String username, BigDecimal amount, String sourceType, String direction) {
         StockAccount account = stockAccountRepository.findByUser_Username(username)
                 .orElseThrow(() -> new RuntimeException("Stock account required."));
 
@@ -163,33 +163,55 @@ public class StockService {
         if (account.getBalanceUSD() == null)
             account.setBalanceUSD(BigDecimal.ZERO);
 
-        if (account.getBalanceKRW().compareTo(amountKRW) < 0) {
-            throw new RuntimeException("Insufficient KRW balance.");
-        }
-
-        // Get Exchange Rate (USD/KRW) using our manual fix
-        // "KRW=X" is 1 USD in KRW (e.g. 1300)
-        BigDecimal exchangeRate;
+        // Fetch Real-time Rate (KRW=X: USD to KRW rate, e.g., 1300)
+        BigDecimal rate;
         try {
-            exchangeRate = getStockPrice("KRW=X");
+            rate = getStockPrice("KRW=X"); // Returns ~1300
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to fetch exchange rate.");
+            rate = new BigDecimal("1300"); // Fallback
         }
 
-        // Calculate USD: KRW / Rate
-        BigDecimal amountUSD = amountKRW.divide(exchangeRate, 2, java.math.RoundingMode.HALF_DOWN);
+        if ("KRW_TO_USD".equals(direction)) {
+            // Case A: Buy USD with KRW
+            if ("BANK".equals(sourceType)) {
+                // Deduct from Bank
+                Account bankAccount = accountRepository.findByUser_Username(username)
+                        .orElseThrow(() -> new RuntimeException("Bank account not found."));
+                if (bankAccount.getBalance().compareTo(amount) < 0) {
+                    throw new RuntimeException("Insufficient funds in bank account");
+                }
+                bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
+            } else {
+                // Deduct from Stock Data
+                if (account.getBalanceKRW().compareTo(amount) < 0) {
+                    throw new RuntimeException("Insufficient KRW balance in stock account");
+                }
+                account.setBalanceKRW(account.getBalanceKRW().subtract(amount));
+            }
 
-        // Update Balances
-        account.setBalanceKRW(account.getBalanceKRW().subtract(amountKRW));
-        account.setBalanceUSD(account.getBalanceUSD().add(amountUSD));
+            // Calculate USD Amount (Amount / Rate)
+            BigDecimal amountUSD = amount.divide(rate, 2, java.math.RoundingMode.HALF_DOWN);
+            account.setBalanceUSD(account.getBalanceUSD().add(amountUSD));
+
+        } else if ("USD_TO_KRW".equals(direction)) {
+            // Case B: Buy KRW with USD
+            // Source must be STOCK for USD (Bank doesn't hold USD)
+            if (account.getBalanceUSD().compareTo(amount) < 0) {
+                throw new RuntimeException("불충분한 USD 잔액");
+            }
+            account.setBalanceUSD(account.getBalanceUSD().subtract(amount));
+
+            // Calculate KRW Amount (Amount * Rate)
+            BigDecimal amountKRW = amount.multiply(rate).setScale(0, java.math.RoundingMode.HALF_DOWN);
+            account.setBalanceKRW(account.getBalanceKRW().add(amountKRW));
+        }
 
         // Record Transaction
         stockTransactionRepository.save(StockTransaction.builder()
                 .user(account.getUser())
                 .type("EXCHANGE")
-                .amount(amountKRW) // Record source amount
-                .currency("KRW_TO_USD") // Indicate direction
+                .amount(amount)
+                .currency(direction) // Record direction
                 .createdAt(LocalDateTime.now())
                 .build());
     }
@@ -214,7 +236,7 @@ public class StockService {
         } else {
             // Pay with USD
             if (account.getBalanceUSD().compareTo(totalCost) < 0)
-                throw new RuntimeException("Insufficient USD balance.");
+                throw new RuntimeException("불충분한 USD 잔액.");
             account.setBalanceUSD(account.getBalanceUSD().subtract(totalCost));
         }
 

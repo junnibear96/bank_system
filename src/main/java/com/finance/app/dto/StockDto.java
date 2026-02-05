@@ -22,6 +22,14 @@ public class StockDto {
 
     @Getter
     @Setter
+    public static class ExchangeRequest {
+        private BigDecimal amount;
+        private String sourceType; // "BANK" or "STOCK"
+        private String direction; // "KRW_TO_USD" or "USD_TO_KRW"
+    }
+
+    @Getter
+    @Setter
     public static class TradeRequest {
         private String ticker;
         private int quantity;

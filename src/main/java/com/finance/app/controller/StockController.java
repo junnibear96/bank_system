@@ -48,8 +48,8 @@ public class StockController {
     }
 
     @PostMapping("/exchange")
-    public String exchange(@AuthenticationPrincipal UserDetails user, @RequestBody StockDto.TransferRequest req) {
-        stockService.exchangeCurrency(user.getUsername(), req.getAmount());
+    public String exchange(@AuthenticationPrincipal UserDetails user, @RequestBody StockDto.ExchangeRequest req) {
+        stockService.exchangeCurrency(user.getUsername(), req.getAmount(), req.getSourceType(), req.getDirection());
         return "Exchange successful";
     }
 
