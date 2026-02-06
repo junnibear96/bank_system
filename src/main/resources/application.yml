@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: ${MYSQL_URL:jdbc:mariadb://localhost:3307/finance_app}
+    url: ${MYSQL_URL:${DATABASE_URL:jdbc:mariadb://localhost:3307/finance_app}}
     username: ${MYSQL_USER:finance_user}
     password: ${MYSQL_PASSWORD:password1234}
     driver-class-name: org.mariadb.jdbc.Driver
