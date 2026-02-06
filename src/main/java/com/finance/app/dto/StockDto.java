@@ -49,6 +49,7 @@ public class StockDto {
     public static class PriceResponse {
         private String ticker;
         private BigDecimal price;
+        private String companyName;
     }
 
     @Getter

@@ -63,7 +63,7 @@ public class StockController {
 
     @GetMapping("/price/{ticker}")
     public StockDto.PriceResponse getPrice(@PathVariable String ticker) {
-        return new StockDto.PriceResponse(ticker, stockService.getStockPrice(ticker));
+        return stockService.getStockPrice(ticker);
     }
 
     @GetMapping("/history/{ticker}")

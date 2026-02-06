@@ -62,7 +62,7 @@ public class StockService {
     // --- Trading Logic ---
 
     // 3. Get Stock Price (Manual HTTP Request because library is blocked)
-    public BigDecimal getStockPrice(String ticker) {
+    public StockDto.PriceResponse getStockPrice(String ticker) {
         if (ticker == null || ticker.trim().isEmpty()) {
             throw new RuntimeException("Ticker symbol cannot be empty.");
         }
@@ -82,10 +82,6 @@ public class StockService {
                 throw new RuntimeException("Yahoo Finance blocked the request (HTTP " + conn.getResponseCode() + ")");
             }
 
-            // Simple Parsing (Avoid heavy JSON library usage for now, just regex/string
-            // parsing for robustness)
-            // Yahoo Config returns JSON. We need "regularMarketPrice" or
-            // "chart.result[0].meta.regularMarketPrice"
             java.io.BufferedReader in = new java.io.BufferedReader(
                     new java.io.InputStreamReader(conn.getInputStream()));
             String inputLine;
@@ -96,21 +92,49 @@ public class StockService {
             in.close();
 
             String json = content.toString();
-            // Look for "regularMarketPrice":123.45
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\"regularMarketPrice\":([0-9.]+)");
-            java.util.regex.Matcher matcher = pattern.matcher(json);
 
-            if (matcher.find()) {
-                return new BigDecimal(matcher.group(1));
+            // 1. Parse Price: "regularMarketPrice":123.45
+            java.util.regex.Pattern pricePattern = java.util.regex.Pattern.compile("\"regularMarketPrice\":([0-9.]+)");
+            java.util.regex.Matcher priceMatcher = pricePattern.matcher(json);
+
+            BigDecimal price;
+            if (priceMatcher.find()) {
+                price = new BigDecimal(priceMatcher.group(1));
             } else {
-                throw new RuntimeException("Could not parse price from Yahoo data.");
+                // Try "chartPreviousClose" as fallback if market is closed/pre-market sometimes
+                // varies
+                java.util.regex.Pattern fallbackPattern = java.util.regex.Pattern
+                        .compile("\"chartPreviousClose\":([0-9.]+)");
+                java.util.regex.Matcher fallbackMatcher = fallbackPattern.matcher(json);
+                if (fallbackMatcher.find()) {
+                    price = new BigDecimal(fallbackMatcher.group(1));
+                } else {
+                    throw new RuntimeException("Could not parse price from Yahoo data.");
+                }
             }
+
+            // 2. Parse Company Name: "shortName":"Samsung Electronics Co Ltd"
+            // Note: shortName might contain escaped quotes or unicode, but for now simple
+            // regex
+            String companyName = ticker; // Default to ticker
+            // Look for "shortName":"..."
+            // We use a non-greedy match for the content inside quotes
+            java.util.regex.Pattern namePattern = java.util.regex.Pattern.compile("\"shortName\":\"(.*?)\"");
+            java.util.regex.Matcher nameMatcher = namePattern.matcher(json);
+
+            if (nameMatcher.find()) {
+                companyName = nameMatcher.group(1);
+                // Simple unicode unescape if needed, but usually browsers handle it or Java
+                // string might need it.
+                // For now raw string from regex.
+            }
+
+            return new StockDto.PriceResponse(ticker, price, companyName);
 
         } catch (Exception e) {
             e.printStackTrace();
-            // Fallback for demo if Yahoo is completely down (Optional)
             System.out.println("Returning mock price due to error.");
-            return BigDecimal.valueOf(150.00); // Mock fallback
+            return new StockDto.PriceResponse(ticker, BigDecimal.valueOf(150.00), "Unknown Company");
         }
     }
 
@@ -237,7 +261,7 @@ public class StockService {
         // Fetch Real-time Rate (KRW=X: USD to KRW rate, e.g., 1300)
         BigDecimal rate;
         try {
-            rate = getStockPrice("KRW=X"); // Returns ~1300
+            rate = getStockPrice("KRW=X").getPrice(); // Returns ~1300
         } catch (Exception e) {
             rate = new BigDecimal("1300"); // Fallback
         }
@@ -293,7 +317,7 @@ public class StockService {
         StockAccount account = stockAccountRepository.findByUser_Username(username)
                 .orElseThrow(() -> new RuntimeException("Stock account required."));
 
-        BigDecimal currentPrice = getStockPrice(ticker);
+        BigDecimal currentPrice = getStockPrice(ticker).getPrice();
         BigDecimal totalCost = currentPrice.multiply(BigDecimal.valueOf(quantity));
 
         // Check if Korean Stock (.KS or .KQ)
@@ -341,7 +365,7 @@ public class StockService {
             throw new RuntimeException("Stock account required.");
         }
 
-        BigDecimal currentPrice = getStockPrice(ticker);
+        BigDecimal currentPrice = getStockPrice(ticker).getPrice();
         BigDecimal totalEarn = currentPrice.multiply(BigDecimal.valueOf(quantity));
 
         StockHolding holding = holdingRepository.findByUser_UsernameAndTicker(username, ticker)
@@ -385,7 +409,7 @@ public class StockService {
         return holdings.stream().map(h -> {
             BigDecimal currentPrice = BigDecimal.ZERO;
             try {
-                currentPrice = getStockPrice(h.getTicker());
+                currentPrice = getStockPrice(h.getTicker()).getPrice();
             } catch (Exception e) {
             }
             return new StockDto.PortfolioResponse(h.getTicker(), h.getQuantity(), h.getAveragePrice(), currentPrice);

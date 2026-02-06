@@ -56,14 +56,17 @@
 
         <div v-if="currentStock" class="stock-info">
           <div class="info-header">
-            <h3>{{ currentStock.ticker }}</h3>
-            <span class="price">${{ Number(currentStock.price).toLocaleString() }}</span>
+            <h3>{{ currentStock.companyName || currentStock.ticker }}</h3>
+            <div class="ticker-sub">
+              <span class="ticker-badge">{{ currentStock.ticker }}</span>
+            </div>
+            <span class="price">{{ getCurrencySymbol(currentStock.ticker) }} {{ Number(currentStock.price).toLocaleString() }}</span>
           </div>
 
           <!-- Stock Chart -->
           <div class="chart-container" style="height: 250px; margin-bottom: 20px; position: relative;">
             <p v-if="loadingChart" style="text-align: center; color: #64748b; line-height: 250px;">차트 로딩 중...</p>
-            <Line v-else-if="chartData" :data="chartData" :options="chartOptions" />
+            <Line v-else-if="chartData" :data="chartData" :options="computedChartOptions" />
           </div>
 
           <div class="order-form">
@@ -345,6 +348,25 @@ const chartOptions = {
   }
 };
 
+// Computed options to access currentStock
+const computedChartOptions = computed(() => {
+  return {
+    ...chartOptions,
+    plugins: {
+      ...chartOptions.plugins,
+      tooltip: {
+        ...chartOptions.plugins.tooltip,
+        callbacks: {
+          label: function (context) {
+            const symbol = currentStock.value ? getCurrencySymbol(currentStock.value.ticker) : '$';
+             return ' ' + symbol + Number(context.parsed.y).toLocaleString();
+          }
+        }
+      }
+    }
+  };
+});
+
 // Watch Modal to start/stop polling
 watch(showExchangeModal, (newVal) => {
   if (newVal) {
@@ -599,6 +621,14 @@ const copyAccountNumber = async () => {
   }
 };
 
+const getCurrencySymbol = (ticker) => {
+  if (!ticker) return '$';
+  if (ticker.endsWith('.KS') || ticker.endsWith('.KQ')) {
+    return '₩';
+  }
+  return '$';
+};
+
 onMounted(() => {
   checkStockAccount();
 });
@@ -798,9 +828,39 @@ onMounted(() => {
 }
 
 .search-box input:focus {
-  outline: none;
   border-color: var(--primary-color);
 }
+
+.stock-info .info-header {
+  margin-bottom: 20px;
+}
+
+.stock-info h3 {
+  font-size: 2rem;
+  margin-bottom: 5px;
+  color: #1e293b;
+}
+
+.ticker-sub {
+  margin-bottom: 10px;
+}
+
+.ticker-badge {
+  background-color: #f1f5f9;
+  color: #64748b;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stock-info .price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #2563eb;
+  display: block;
+}
+
 
 .start-box .btn-primary {
   background: var(--secondary-color);
