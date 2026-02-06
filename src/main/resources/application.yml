@@ -3,10 +3,11 @@ server:
 
 spring:
   datasource:
-    # Try fully qualified URLs first, then build from components (common Railway pattern)
-    url: ${MYSQL_URL:${DATABASE_URL:jdbc:mariadb://${MYSQLHOST:localhost}:${MYSQLPORT:3307}/${MYSQLDATABASE:finance_app}}}
-    username: ${MYSQL_USER:${MYSQLUSER:finance_user}}
-    password: ${MYSQL_PASSWORD:${MYSQLPASSWORD:password1234}}
+    # Railway provides MYSQL_URL as "mysql://...", which isn't a valid JDBC URL.
+    # We must explicitly construct the JDBC URL using the components.
+    url: jdbc:mariadb://${MYSQLHOST:localhost}:${MYSQLPORT:3307}/${MYSQLDATABASE:finance_app}
+    username: ${MYSQLUSER:finance_user}
+    password: ${MYSQLPASSWORD:password1234}
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
