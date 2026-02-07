@@ -27,16 +27,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No
                                                                                                               // Sessions
                 .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",
-                                "/api/health",
-                                "/",
-                                "/index.html",
-                                "/assets/**",
-                                "/*.js",
-                                "/*.css",
-                                "/favicon.ico")
-                        .permitAll() // Public endpoints and static resources
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/auth/**"),
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/health"),
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/"),
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/index.html"),
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/assets/**"),
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.js"),
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.css"),
+                            new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/favicon.ico")
+                        ).permitAll() // Public endpoints and static resources
                         .anyRequest().authenticated() // All other requests require login
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
