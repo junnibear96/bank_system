@@ -4,7 +4,7 @@
       <div class="nav-content">
         <h1 class="logo" @click="$router.push('/')">💸 FinTech Pro</h1>
         <nav>
-          <span class="nav-item" @click="$router.push('/')">포트폴리오</span>
+          <span class="nav-item" @click="$router.push('/')">홈</span>
           <span class="nav-item" @click="$router.push('/stock')">주식거래</span>
           <button v-if="!authStore.isAuthenticated" class="nav-btn login-btn" @click="$router.push('/login')">로그인</button>
           <button v-else class="nav-btn logout-btn" @click="logout">로그아웃</button>
