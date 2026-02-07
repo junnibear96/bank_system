@@ -3,10 +3,10 @@ server:
 
 spring:
   datasource:
-    # Tuned for Railway MySQL 8.0 using standard MySQL Driver
-    url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3307}/${MYSQLDATABASE:finance_app}?allowPublicKeyRetrieval=true&useSSL=false
-    username: ${MYSQLUSER:finance_user}
-    password: ${MYSQLPASSWORD:password1234}
+    # Hardcoded Railway Public URL as requested by user
+    url: jdbc:mysql://yamanote.proxy.rlwy.net:26416/railway?allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: LhkJiSjiBWnkbvzElUCEFKGtDiYOmaci
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
