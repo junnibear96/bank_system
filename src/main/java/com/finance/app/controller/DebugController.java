@@ -20,31 +20,22 @@ public class DebugController {
     @GetMapping("/assets")
     public List<String> listAssets() throws IOException {
         List<String> results = new ArrayList<>();
+        org.springframework.core.io.support.PathMatchingResourcePatternResolver resolver = new org.springframework.core.io.support.PathMatchingResourcePatternResolver();
 
-        // Check standard static locations
-        String[] locations = { "static", "static/assets", "public", "resources" };
-
-        for (String loc : locations) {
-            Resource resource = new ClassPathResource(loc);
-            results.add("Checking: " + loc + " -> Exists? " + resource.exists());
-
-            if (resource.exists()) {
-                try {
-                    File file = resource.getFile();
-                    if (file.isDirectory()) {
-                        File[] files = file.listFiles();
-                        if (files != null) {
-                            results.add("Contents of " + loc + ":");
-                            results.addAll(Arrays.stream(files).map(File::getName).collect(Collectors.toList()));
-                        }
-                    } else {
-                        results.add("Found file: " + file.getName());
-                    }
-                } catch (Exception e) {
-                    results.add("Could not list files for " + loc + " (probably inside JAR): " + e.getMessage());
-                }
+        try {
+            Resource[] resources = resolver.getResources("classpath*:static/assets/*");
+            for (Resource r : resources) {
+                results.add("Found asset: " + r.getFilename() + " (URI: " + r.getURI() + ")");
             }
+
+            Resource[] rootResources = resolver.getResources("classpath*:static/*");
+            for (Resource r : rootResources) {
+                results.add("Found root static: " + r.getFilename());
+            }
+        } catch (Exception e) {
+            results.add("Error listing resources: " + e.getMessage());
         }
+
         return results;
     }
 }
