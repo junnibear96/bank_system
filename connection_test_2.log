@@ -1,0 +1,188 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources
+> Task :classes
+> Task :resolveMainClassName
+
+> Task :bootRun
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.2)
+
+2026-02-07T23:07:30.524+09:00  INFO 14212 --- [           main] com.finance.app.AppApplication           : Starting AppApplication using Java 21.0.9 with PID 14212 (C:\Users\junse\antigravity_project\bank_system\build\classes\java\main started by junse in C:\Users\junse\antigravity_project\bank_system)
+2026-02-07T23:07:30.525+09:00  INFO 14212 --- [           main] com.finance.app.AppApplication           : No active profile set, falling back to 1 default profile: "default"
+2026-02-07T23:07:30.930+09:00  INFO 14212 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-07T23:07:30.984+09:00  INFO 14212 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 7 JPA repository interfaces.
+2026-02-07T23:07:31.293+09:00  INFO 14212 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-02-07T23:07:31.300+09:00  INFO 14212 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-07T23:07:31.300+09:00  INFO 14212 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-02-07T23:07:31.341+09:00  INFO 14212 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-07T23:07:31.343+09:00  INFO 14212 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 792 ms
+2026-02-07T23:07:31.431+09:00  INFO 14212 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-07T23:07:31.465+09:00  INFO 14212 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2026-02-07T23:07:31.488+09:00  INFO 14212 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-07T23:07:31.602+09:00  INFO 14212 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-07T23:07:31.615+09:00  INFO 14212 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-07T23:07:34.471+09:00  INFO 14212 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.mariadb.jdbc.Connection@328e4ec2
+2026-02-07T23:07:34.473+09:00  INFO 14212 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-07T23:07:34.785+09:00  WARN 14212 --- [           main] org.hibernate.dialect.Dialect            : HHH000511: The 9.4.0 version for [org.hibernate.dialect.MariaDBDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 10.4.0. Check the community dialects project for available legacy versions.
+2026-02-07T23:07:34.787+09:00  WARN 14212 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MariaDBDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-07T23:07:35.530+09:00  INFO 14212 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    create table account (
+        id bigint not null auto_increment,
+        account_number varchar(255),
+        balance decimal(38,2),
+        user_id bigint,
+        primary key (id)
+    ) engine=InnoDB
+Hibernate: 
+    create table stock_account (
+        id bigint not null auto_increment,
+        account_number varchar(255),
+        balancekrw decimal(38,2),
+        balanceusd decimal(38,2),
+        created_at datetime(6),
+        user_id bigint,
+        primary key (id)
+    ) engine=InnoDB
+Hibernate: 
+    create table stock_holding (
+        id bigint not null auto_increment,
+        average_price decimal(38,2),
+        quantity integer,
+        ticker varchar(255),
+        user_id bigint,
+        primary key (id)
+    ) engine=InnoDB
+Hibernate: 
+    create table stock_order (
+        id bigint not null auto_increment,
+        price decimal(38,2),
+        quantity integer,
+        ticker varchar(255),
+        trade_date datetime(6),
+        type enum ('BUY','SELL'),
+        user_id bigint,
+        primary key (id)
+    ) engine=InnoDB
+Hibernate: 
+    create table stock_transaction (
+        id bigint not null auto_increment,
+        amount decimal(38,2),
+        created_at datetime(6),
+        currency varchar(255),
+        type varchar(255),
+        user_id bigint,
+        primary key (id)
+    ) engine=InnoDB
+Hibernate: 
+    create table transaction (
+        id bigint not null auto_increment,
+        amount decimal(38,2),
+        timestamp datetime(6),
+        type enum ('DEPOSIT','WITHDRAW','TRANSFER'),
+        receiver_account_id bigint,
+        sender_account_id bigint,
+        primary key (id)
+    ) engine=InnoDB
+Hibernate: 
+    create table users (
+        id bigint not null auto_increment,
+        name varchar(255) not null,
+        password varchar(255) not null,
+        username varchar(255) not null,
+        primary key (id)
+    ) engine=InnoDB
+Hibernate: 
+    alter table account 
+       drop index if exists UK_66gkcp94endmotfwb8r4ocxm9
+2026-02-07T23:07:38.850+09:00  WARN 14212 --- [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1064-42000: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'if exists UK_66gkcp94endmotfwb8r4ocxm9' at line 2
+Hibernate: 
+    alter table account 
+       add constraint UK_66gkcp94endmotfwb8r4ocxm9 unique (account_number)
+Hibernate: 
+    alter table account 
+       drop index if exists UK_h6dr47em6vg85yuwt4e2roca4
+2026-02-07T23:07:39.433+09:00  WARN 14212 --- [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1064-42000: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'if exists UK_h6dr47em6vg85yuwt4e2roca4' at line 2
+Hibernate: 
+    alter table account 
+       add constraint UK_h6dr47em6vg85yuwt4e2roca4 unique (user_id)
+Hibernate: 
+    alter table stock_account 
+       drop index if exists UK_5u3n9o2nnkokj1qioehtj59jb
+2026-02-07T23:07:40.012+09:00  WARN 14212 --- [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1064-42000: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'if exists UK_5u3n9o2nnkokj1qioehtj59jb' at line 2
+Hibernate: 
+    alter table stock_account 
+       add constraint UK_5u3n9o2nnkokj1qioehtj59jb unique (account_number)
+Hibernate: 
+    alter table stock_account 
+       drop index if exists UK_5g7vgl3ukgngl1bqckfiha1w5
+2026-02-07T23:07:40.589+09:00  WARN 14212 --- [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1064-42000: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'if exists UK_5g7vgl3ukgngl1bqckfiha1w5' at line 2
+Hibernate: 
+    alter table stock_account 
+       add constraint UK_5g7vgl3ukgngl1bqckfiha1w5 unique (user_id)
+Hibernate: 
+    alter table stock_holding 
+       drop index if exists UKqv3ln7auak6jc3y0nou0sdfj3
+2026-02-07T23:07:41.173+09:00  WARN 14212 --- [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1064-42000: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'if exists UKqv3ln7auak6jc3y0nou0sdfj3' at line 2
+Hibernate: 
+    alter table stock_holding 
+       add constraint UKqv3ln7auak6jc3y0nou0sdfj3 unique (user_id, ticker)
+Hibernate: 
+    alter table users 
+       drop index if exists UK_r43af9ap4edm43mmtq01oddj6
+2026-02-07T23:07:41.776+09:00  WARN 14212 --- [           main] o.m.jdbc.message.server.ErrorPacket      : Error: 1064-42000: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'if exists UK_r43af9ap4edm43mmtq01oddj6' at line 2
+Hibernate: 
+    alter table users 
+       add constraint UK_r43af9ap4edm43mmtq01oddj6 unique (username)
+Hibernate: 
+    alter table account 
+       add constraint FKra7xoi9wtlcq07tmoxxe5jrh4 
+       foreign key (user_id) 
+       references users (id)
+Hibernate: 
+    alter table stock_account 
+       add constraint FKejbqmi0l97c2onk7tkn6cyxkb 
+       foreign key (user_id) 
+       references users (id)
+Hibernate: 
+    alter table stock_holding 
+       add constraint FK7vyu7i78rbb3osk7s1t2nwft 
+       foreign key (user_id) 
+       references users (id)
+Hibernate: 
+    alter table stock_order 
+       add constraint FKsw4wi5oi2ol1etvvjvqb01qh0 
+       foreign key (user_id) 
+       references users (id)
+Hibernate: 
+    alter table stock_transaction 
+       add constraint FKmuc6airl53m4ef36lqjc1hgv0 
+       foreign key (user_id) 
+       references users (id)
+Hibernate: 
+    alter table transaction 
+       add constraint FKju0iwkkyfeecqgjv9dn9gxbb0 
+       foreign key (receiver_account_id) 
+       references account (id)
+Hibernate: 
+    alter table transaction 
+       add constraint FK6rmg4ssabk05bhs84bavx65e8 
+       foreign key (sender_account_id) 
+       references account (id)
+2026-02-07T23:07:44.591+09:00  INFO 14212 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-07T23:07:44.847+09:00  WARN 14212 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-07T23:07:44.860+09:00  WARN 14212 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 464b4261-4f89-4085-a530-55d4cd0b03f3
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-02-07T23:07:44.992+09:00  INFO 14212 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@73753326, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@24f77077, org.springframework.security.web.context.SecurityContextHolderFilter@600b3bee, org.springframework.security.web.header.HeaderWriterFilter@63d14dbf, org.springframework.web.filter.CorsFilter@2eb73a42, org.springframework.web.filter.CorsFilter@188b9a1e, org.springframework.security.web.authentication.logout.LogoutFilter@1e9f6095, com.finance.app.security.JwtAuthenticationFilter@d48e998, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@20ad64c, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@39a03ccc, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@423d662a, org.springframework.security.web.session.SessionManagementFilter@66428512, org.springframework.security.web.access.ExceptionTranslationFilter@2566247d, org.springframework.security.web.access.intercept.AuthorizationFilter@752fecbf]
+2026-02-07T23:07:45.099+09:00  INFO 14212 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-02-07T23:07:45.103+09:00  INFO 14212 --- [           main] com.finance.app.AppApplication           : Started AppApplication in 14.796 seconds (process running for 15.042)

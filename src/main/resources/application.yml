@@ -3,19 +3,16 @@ server:
 
 spring:
   datasource:
-    # Railway provides MYSQL_URL as "mysql://...", which isn't a valid JDBC URL.
-    # We must explicitly construct the JDBC URL using the components.
-    url: jdbc:mariadb://${MYSQLHOST:localhost}:${MYSQLPORT:3307}/${MYSQLDATABASE:finance_app}
+    # Tuned for Railway MySQL 8.0 using standard MySQL Driver
+    url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3307}/${MYSQLDATABASE:finance_app}?allowPublicKeyRetrieval=true&useSSL=false
     username: ${MYSQLUSER:finance_user}
     password: ${MYSQLPASSWORD:password1234}
-    driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
+    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        # Explicitly set dialect to avoid "Unable to determine Dialect" error when connection fails
-        dialect: org.hibernate.dialect.MariaDBDialect
         format_sql: true

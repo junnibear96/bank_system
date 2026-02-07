@@ -4,7 +4,7 @@
       <div class="nav-content">
         <h1 class="logo" @click="$router.push('/')">💸 FinTech Pro</h1>
         <nav>
-          <span class="nav-item">포트폴리오</span>
+          <span class="nav-item">홈</span>
           <span class="nav-item">주식거래</span>
         </nav>
       </div>
