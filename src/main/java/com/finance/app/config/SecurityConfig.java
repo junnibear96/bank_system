@@ -20,6 +20,23 @@ public class SecurityConfig {
     }
 
     @Bean
+    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers(
+                        new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/favicon.ico"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/assets/**"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.png"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.jpg"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.jpeg"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.svg"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.css"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.js"))
+                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/"))
+                .requestMatchers(
+                        new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/index.html"));
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
@@ -27,17 +44,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No
                                                                                                               // Sessions
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers(
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/auth/**"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/health"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/index.html"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/assets/**"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.js"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.css"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/favicon.ico"))
-                        .permitAll() // Public endpoints and static resources
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/health"))
+                        .permitAll() // Public endpoints
                         .anyRequest().authenticated() // All other requests require login
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
