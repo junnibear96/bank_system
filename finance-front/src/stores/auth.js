@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import api from '../api'; // Use the configured API instance
+import axios from 'axios'; // Still needed for defaults, or better, use api.defaults?
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -12,16 +13,19 @@ export const useAuthStore = defineStore('auth', {
     actions: {
         async login(username, password) {
             try {
-                const response = await axios.post('http://localhost:8080/api/auth/login', {
+                // Use api instance (relative path)
+                const response = await api.post('/auth/login', {
                     username,
                     password
                 });
 
-                this.token = response.data; // The backend returns the raw string token
-                localStorage.setItem('token', this.token); // Save to browser
+                this.token = response.data;
+                localStorage.setItem('token', this.token);
 
-                // Set default header for future requests
-                axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+                // Set default header for future requests on the api instance?
+                // The api interceptor already handles this!
+                // But if we use other axios instances, we might need it.
+                // For now, let's rely on the interceptor in api/index.js
                 return true;
             } catch (error) {
                 console.error("Login failed", error);
@@ -30,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
         },
         async signup(username, password, name) {
             try {
-                await axios.post('http://localhost:8080/api/auth/signup', {
+                await api.post('/auth/signup', {
                     username,
                     password,
                     name
@@ -45,7 +49,8 @@ export const useAuthStore = defineStore('auth', {
             this.token = '';
             this.user = null;
             localStorage.removeItem('token');
-            delete axios.defaults.headers.common['Authorization'];
+            // delete axios.defaults.headers.common['Authorization']; 
+            // No need to delete from axios if we use interceptor
         }
     }
 });
