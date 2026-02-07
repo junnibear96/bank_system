@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080/api', // 기본 주소 설정
+    baseURL: '/api', // Relative path for both local and prod
     timeout: 5000,
 });
 

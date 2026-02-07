@@ -1,0 +1,61 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.2)
+
+2026-02-08T01:25:23.888+09:00  INFO 29304 --- [           main] com.finance.app.AppApplication           : Starting AppApplication v0.0.1-SNAPSHOT using Java 21.0.9 with PID 29304 (C:\Users\junse\antigravity_project\bank_system\build\libs\bank-system-0.0.1-SNAPSHOT.jar started by junse in C:\Users\junse\antigravity_project\bank_system)
+2026-02-08T01:25:23.890+09:00  INFO 29304 --- [           main] com.finance.app.AppApplication           : No active profile set, falling back to 1 default profile: "default"
+2026-02-08T01:25:24.505+09:00  INFO 29304 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-08T01:25:24.552+09:00  INFO 29304 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 42 ms. Found 7 JPA repository interfaces.
+2026-02-08T01:25:25.039+09:00  INFO 29304 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-02-08T01:25:25.047+09:00  INFO 29304 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-08T01:25:25.047+09:00  INFO 29304 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-02-08T01:25:25.079+09:00  INFO 29304 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-08T01:25:25.080+09:00  INFO 29304 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1144 ms
+2026-02-08T01:25:25.246+09:00  INFO 29304 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-08T01:25:25.318+09:00  INFO 29304 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2026-02-08T01:25:25.348+09:00  INFO 29304 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-08T01:25:25.489+09:00  INFO 29304 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-08T01:25:25.500+09:00  INFO 29304 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-08T01:25:27.892+09:00  INFO 29304 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@49e479da
+2026-02-08T01:25:27.895+09:00  INFO 29304 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-08T01:25:28.448+09:00  WARN 29304 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-08T01:25:28.891+09:00  INFO 29304 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-08T01:25:34.887+09:00  INFO 29304 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-08T01:25:35.233+09:00  WARN 29304 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-08T01:25:35.270+09:00  WARN 29304 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f987e969-b191-49e1-88f5-0db9552d7680
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-02-08T01:25:35.407+09:00  INFO 29304 --- [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-02-08T01:25:35.466+09:00  WARN 29304 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'filterChain' defined in class path resource [com/finance/app/config/SecurityConfig.class]: Failed to instantiate [org.springframework.security.web.SecurityFilterChain]: Factory method 'filterChain' threw exception with message: Error creating bean with name 'mvcHandlerMappingIntrospector' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Invalid mapping on handler class [com.finance.app.controller.SpaController]: public java.lang.String com.finance.app.controller.SpaController.redirectNested()
+2026-02-08T01:25:35.466+09:00  INFO 29304 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-08T01:25:35.467+09:00  INFO 29304 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-08T01:25:35.720+09:00  INFO 29304 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-08T01:25:35.722+09:00  INFO 29304 --- [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-02-08T01:25:35.731+09:00  INFO 29304 --- [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-02-08T01:25:35.740+09:00 ERROR 29304 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Invalid mapping pattern detected:
+/**/{path:[^\.]*}
+^
+No more pattern data allowed after {*...} or ** pattern element
+
+Action:
+
+Fix this pattern in your application or switch to the legacy parser implementation with 'spring.mvc.pathmatch.matching-strategy=ant_path_matcher'.
+
