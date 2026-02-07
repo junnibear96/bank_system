@@ -1,0 +1,58 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.2)
+
+2026-02-08T01:13:40.225+09:00  INFO 27076 --- [           main] com.finance.app.AppApplication           : Starting AppApplication v0.0.1-SNAPSHOT using Java 21.0.9 with PID 27076 (C:\Users\junse\antigravity_project\bank_system\build\libs\bank-system-0.0.1-SNAPSHOT.jar started by junse in C:\Users\junse\antigravity_project\bank_system)
+2026-02-08T01:13:40.226+09:00  INFO 27076 --- [           main] com.finance.app.AppApplication           : No active profile set, falling back to 1 default profile: "default"
+2026-02-08T01:13:40.831+09:00  INFO 27076 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-08T01:13:40.879+09:00  INFO 27076 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 42 ms. Found 7 JPA repository interfaces.
+2026-02-08T01:13:41.381+09:00  INFO 27076 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-02-08T01:13:41.393+09:00  INFO 27076 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-08T01:13:41.394+09:00  INFO 27076 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-02-08T01:13:41.422+09:00  INFO 27076 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-02-08T01:13:41.423+09:00  INFO 27076 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1154 ms
+2026-02-08T01:13:41.600+09:00  INFO 27076 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-08T01:13:41.685+09:00  INFO 27076 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2026-02-08T01:13:41.725+09:00  INFO 27076 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-02-08T01:13:41.879+09:00  INFO 27076 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-08T01:13:41.893+09:00  INFO 27076 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-08T01:13:44.650+09:00  INFO 27076 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2969a9a6
+2026-02-08T01:13:44.655+09:00  INFO 27076 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-08T01:13:45.267+09:00  WARN 27076 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-08T01:13:45.712+09:00  INFO 27076 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-08T01:13:52.670+09:00  INFO 27076 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-08T01:13:53.037+09:00  WARN 27076 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-08T01:13:53.076+09:00  WARN 27076 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: c557dd13-0db1-42c3-b024-215a70bb9c82
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-02-08T01:13:53.241+09:00  INFO 27076 --- [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-02-08T01:13:53.425+09:00  INFO 27076 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1a61f634, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@20a2930f, org.springframework.security.web.context.SecurityContextHolderFilter@1d1da00b, org.springframework.security.web.header.HeaderWriterFilter@222dc36c, org.springframework.web.filter.CorsFilter@609edb55, org.springframework.web.filter.CorsFilter@147892be, org.springframework.security.web.authentication.logout.LogoutFilter@3abb6aa, com.finance.app.security.JwtAuthenticationFilter@10b687f2, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5cef5fc9, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@b867869, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@13d1653, org.springframework.security.web.session.SessionManagementFilter@600a1270, org.springframework.security.web.access.ExceptionTranslationFilter@662b199, org.springframework.security.web.access.intercept.AuthorizationFilter@3e7fc07e]
+2026-02-08T01:13:53.595+09:00  WARN 27076 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-02-08T01:13:53.597+09:00  INFO 27076 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-08T01:13:53.600+09:00  INFO 27076 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-08T01:13:54.675+09:00  INFO 27076 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-08T01:13:54.681+09:00  INFO 27076 --- [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-02-08T01:13:54.692+09:00 ERROR 27076 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
