@@ -11,10 +11,4 @@ public class SpaController {
     public String redirect() {
         return "forward:/index.html";
     }
-
-    // Forward nested paths
-    @RequestMapping(value = "/**/{path:[^\\.]*}")
-    public String redirectNested() {
-        return "forward:/index.html";
-    }
 }
