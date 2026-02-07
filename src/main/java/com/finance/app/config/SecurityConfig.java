@@ -22,19 +22,10 @@ public class SecurityConfig {
     @Bean
     public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
+                // Keep only paths that strictly break with Security Headers (like H2 console)
+                // Moving assets to permitAll so CORS headers are applied
                 .requestMatchers(
-                        new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/favicon.ico"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/assets/**"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/error"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.png"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.jpg"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.jpeg"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.svg"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.css"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.js"))
-                .requestMatchers(new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/"))
-                .requestMatchers(
-                        new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/index.html"));
+                        new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/h2-console/**"));
     }
 
     @Bean
