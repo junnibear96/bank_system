@@ -48,7 +48,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/auth/**"),
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/health"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/error"))
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/error"),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/"),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/index.html"),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/assets/**"),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.js"),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.css"),
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/*.ico"))
                         .permitAll() // Public endpoints
                         .anyRequest().authenticated() // All other requests require login
                 )
