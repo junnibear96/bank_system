@@ -40,8 +40,6 @@ public class SecurityConfig {
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/auth/**"),
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/health"),
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/error"),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher(
-                                        "/api/debug/**"),
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/"),
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/index.html"),
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/assets/**"),

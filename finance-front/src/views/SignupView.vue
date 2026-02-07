@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import api from '@/api'; // Import the configured API instance
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -44,8 +44,8 @@ const name = ref('');
 
 const handleSignup = async () => {
   try {
-    // 백엔드 회원가입 API 호출
-    await axios.post('http://localhost:8080/api/auth/signup', {
+    // Use the api instance (relative path /api/auth/signup)
+    await api.post('/auth/signup', {
       username: username.value,
       password: password.value,
       name: name.value
